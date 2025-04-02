@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Search Results | IRCTC Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-train text-2xl"></i>
+                <h1 class="text-2xl font-bold">IRCTC Clone</h1>
+            </div>
+            <div class="space-x-4">
+                <a href="index.html" class="hover:text-blue-200">Home</a>
+                <a href="login.html" class="hover:text-blue-200">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Results Section -->
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4">Search Results</h2>
+            
+            <!-- Search Summary -->
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-gray-600">From</p>
+                        <p class="font-semibold" id="fromStationDisplay">Delhi (DEL)</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">To</p>
+                        <p class="font-semibold" id="toStationDisplay">Mumbai (MUM)</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Date</p>
+                        <p class="font-semibold" id="journeyDateDisplay">15 Oct 2023</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trains List -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                    <thead class="bg-blue-900 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Train No.</th>
+                            <th class="py-3 px-4 text-left">Train Name</th>
+                            <th class="py-3 px-4 text-left">Departure</th>
+                            <th class="py-3 px-4 text-left">Arrival</th>
+                            <th class="py-3 px-4 text-left">Duration</th>
+                            <th class="py-3 px-4 text-left">Classes</th>
+                            <th class="py-3 px-4 text-left">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainsList" class="divide-y divide-gray-200">
+                        <!-- Train data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get query parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromStation = urlParams.get('from');
+        const toStation = urlParams.get('to');
+        const journeyDate = urlParams.get('date');
+
+        // Display search criteria
+        document.getElementById('fromStationDisplay').textContent = getStationName(fromStation);
+        document.getElementById('toStationDisplay').textContent = getStationName(toStation);
+        document.getElementById('journeyDateDisplay').textContent = formatDate(journeyDate);
+
+        // Mock data for trains (would come from Train and Via_details tables in real implementation)
+        const mockTrains = [
+            {
+                train_code: 12345,
+                train_name: "RAJDHANI EXPRESS",
+                start_station_code: "DEL",
+                end_station_code: "MUM",
+                start_time: "18:30",
+                end_time: "08:30",
+                duration: "14h 0m",
+                classes: [
+                    { class_id: 1, class_name: "1A", fare: 3500 },
+                    { class_id: 2, class_name: "2A", fare: 2500 },
+                    { class_id: 3, class_name: "3A", fare: 1500 }
+                ],
+                via_stations: [
+                    { station_code: "GWL", station_name: "Gwalior", reach_time: "21:15" },
+                    { station_code: "BPL", station_name: "Bhopal", reach_time: "01:30" }
+                ]
+            },
+            {
+                train_code: 12346,
+                train_name: "SHATABDI EXPRESS",
+                start_station_code: "DEL",
+                end_station_code: "MUM",
+                start_time: "06:00",
+                end_time: "20:00",
+                duration: "14h 0m",
+                classes: [
+                    { class_id: 2, class_name: "2A", fare: 2200 },
+                    { class_id: 3, class_name: "3A", fare: 1200 }
+                ],
+                via_stations: [
+                    { station_code: "GWL", station_name: "Gwalior", reach_time: "08:45" },
+                    { station_code: "BPL", station_name: "Bhopal", reach_time: "12:30" }
+                ]
+            }
+        ];
+
+        // Populate trains table
+        const trainsList = document.getElementById('trainsList');
+        mockTrains.forEach(train => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            row.innerHTML = `
+                <td class="py-4 px-4">${train.train_code}</td>
+                <td class="py-4 px-4">
+                    <div class="font-semibold">${train.train_name}</div>
+                    <div class="text-sm text-gray-500">${getStationName(train.start_station_code)} to ${getStationName(train.end_station_code)}</div>
+                </td>
+                <td class="py-4 px-4">
+                    <div class="font-semibold">${train.start_time}</div>
+                    <div class="text-sm text-gray-500">${getStationName(train.start_station_code)}</div>
+                </td>
+                <td class="py-4 px-4">
+                    <div class="font-semibold">${train.end_time}</div>
+                    <div class="text-sm text-gray-500">${getStationName(train.end_station_code)}</div>
+                </td>
+                <td class="py-4 px-4">${train.duration}</td>
+                <td class="py-4 px-4">
+                    ${train.classes.map(cls => `
+                        <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                            ${cls.class_name} (₹${cls.fare})
+                        </span>
+                    `).join('')}
+                </td>
+                <td class="py-4 px-4">
+                    <button onclick="bookTrain(${train.train_code})" class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-300">
+                        Book Now
+                    </button>
+                </td>
+            `;
+            
+            trainsList.appendChild(row);
+        });
+
+        // Helper functions
+        function getStationName(stationCode) {
+            const stations = {
+                'DEL': 'Delhi',
+                'MUM': 'Mumbai',
+                'CHE': 'Chennai',
+                'BAN': 'Bangalore',
+                'GWL': 'Gwalior',
+                'BPL': 'Bhopal'
+            };
+            return stations[stationCode] || stationCode;
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        function bookTrain(trainCode) {
+            // Store selected train in localStorage
+            const selectedTrain = mockTrains.find(train => train.train_code === trainCode);
+            localStorage.setItem('selectedTrain', JSON.stringify(selectedTrain));
+            
+            // Redirect to seat selection page
+            window.location.href = 'seat_selection.html';
+        }
+    </script>
+</body>
+</html>
