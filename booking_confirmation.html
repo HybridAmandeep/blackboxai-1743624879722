@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation | IRCTC Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-train text-2xl"></i>
+                <h1 class="text-2xl font-bold">IRCTC Clone</h1>
+            </div>
+            <div class="space-x-4">
+                <a href="index.html" class="hover:text-blue-200">Home</a>
+                <a href="login.html" class="hover:text-blue-200">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Confirmation Section -->
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-green-600 mb-2">Booking Confirmed!</h2>
+                <p class="text-gray-600">Your ticket has been successfully booked</p>
+            </div>
+            
+            <!-- PNR Details -->
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div>
+                        <p class="text-gray-600">PNR Number</p>
+                        <p class="text-2xl font-bold" id="pnrNumber">1234567890</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <button class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-300">
+                            <i class="fas fa-print mr-2"></i> Print Ticket
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Journey Details -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4">Journey Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <p class="text-gray-600">Train No. & Name</p>
+                        <p class="font-semibold" id="trainDetails">12345 / RAJDHANI EXPRESS</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Date of Journey</p>
+                        <p class="font-semibold" id="journeyDate">15 Oct 2023</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Class</p>
+                        <p class="font-semibold" id="journeyClass">2A</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-600">From</p>
+                        <p class="font-semibold" id="fromStation">Delhi (DEL)</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">To</p>
+                        <p class="font-semibold" id="toStation">Mumbai (MUM)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Passenger Details -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4">Passenger Details</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-3 px-4 text-left">S.No.</th>
+                                <th class="py-3 px-4 text-left">Name</th>
+                                <th class="py-3 px-4 text-left">Age</th>
+                                <th class="py-3 px-4 text-left">Gender</th>
+                                <th class="py-3 px-4 text-left">Seat No.</th>
+                                <th class="py-3 px-4 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passengerTable" class="divide-y divide-gray-200">
+                            <!-- Passenger details will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Fare Details -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold mb-4">Fare Details</h3>
+                <div class="space-y-2 mb-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Ticket Fare</span>
+                        <span id="ticketFare">₹2500</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Reservation Charges</span>
+                        <span>₹60</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">GST (5%)</span>
+                        <span id="gstAmount">₹125</span>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-gray-200">
+                    <div class="flex justify-between font-bold text-lg">
+                        <span>Total Amount Paid</span>
+                        <span id="totalPaid">₹2685</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col md:flex-row justify-center gap-4 mt-8">
+                <a href="index.html" class="bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition duration-300 text-center">
+                    <i class="fas fa-home mr-2"></i> Back to Home
+                </a>
+                <a href="pnr_status.html" class="bg-white border border-blue-900 text-blue-900 px-6 py-3 rounded-lg hover:bg-blue-50 transition duration-300 text-center">
+                    <i class="fas fa-search mr-2"></i> Check PNR Status
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get booking details from localStorage
+        const bookingDetails = JSON.parse(localStorage.getItem('bookingDetails'));
+        const paymentRecord = JSON.parse(localStorage.getItem('paymentRecord'));
+        const ticketReservation = JSON.parse(localStorage.getItem('ticketReservation'));
+        const paxRecords = JSON.parse(localStorage.getItem('paxRecords'));
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Display PNR number
+            document.getElementById('pnrNumber').textContent = paymentRecord.pnr_no;
+            
+            // Display journey details
+            document.getElementById('trainDetails').textContent = 
+                `${bookingDetails.train.train_code} / ${bookingDetails.train.train_name}`;
+            document.getElementById('journeyDate').textContent = 
+                new Date(ticketReservation.from_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('journeyClass').textContent = bookingDetails.class.class_name;
+            document.getElementById('fromStation').textContent = 
+                `${getStationName(ticketReservation.from_station)} (${ticketReservation.from_station})`;
+            document.getElementById('toStation').textContent = 
+                `${getStationName(ticketReservation.to_station)} (${ticketReservation.to_station})`;
+            
+            // Display passenger details
+            const passengerTable = document.getElementById('passengerTable');
+            paxRecords.forEach((passenger, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-4 px-4">${index + 1}</td>
+                    <td class="py-4 px-4">${passenger.pax_name}</td>
+                    <td class="py-4 px-4">${passenger.pax_age}</td>
+                    <td class="py-4 px-4">${passenger.pax_sex}</td>
+                    <td class="py-4 px-4">${passenger.seat_no}</td>
+                    <td class="py-4 px-4">
+                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Confirmed</span>
+                    </td>
+                `;
+                passengerTable.appendChild(row);
+            });
+            
+            // Display fare details
+            const totalFare = paxRecords.reduce((sum, passenger) => sum + passenger.fare, 0);
+            const gst = Math.round(totalFare * 0.05);
+            const total = totalFare + 60 + gst;
+            
+            document.getElementById('ticketFare').textContent = `₹${totalFare}`;
+            document.getElementById('gstAmount').textContent = `₹${gst}`;
+            document.getElementById('totalPaid').textContent = `₹${total}`;
+        });
+        
+        // Helper function to get station name
+        function getStationName(stationCode) {
+            const stations = {
+                'DEL': 'Delhi',
+                'MUM': 'Mumbai',
+                'CHE': 'Chennai',
+                'BAN': 'Bangalore',
+                'GWL': 'Gwalior',
+                'BPL': 'Bhopal'
+            };
+            return stations[stationCode] || stationCode;
+        }
+    </script>
+</body>
+</html>
