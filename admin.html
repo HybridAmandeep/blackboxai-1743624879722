@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | IRCTC Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-train text-2xl"></i>
+                <h1 class="text-2xl font-bold">IRCTC Admin</h1>
+            </div>
+            <div class="space-x-4">
+                <a href="index.html" class="hover:text-blue-200">Back to Site</a>
+                <a href="login.html" class="hover:text-blue-200">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard -->
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 text-white min-h-screen p-4">
+            <div class="space-y-6">
+                <div class="flex items-center space-x-2 p-2 border-b border-gray-700">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin Panel</span>
+                </div>
+                <div class="space-y-2">
+                    <button onclick="showSection('dashboard')" class="w-full text-left p-2 rounded hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="showSection('trains')" class="w-full text-left p-2 rounded hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-subway"></i>
+                        <span>Manage Trains</span>
+                    </button>
+                    <button onclick="showSection('stations')" class="w-full text-left p-2 rounded hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Manage Stations</span>
+                    </button>
+                    <button onclick="showSection('bookings')" class="w-full text-left p-2 rounded hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>View Bookings</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="admin-section">
+                <h2 class="text-2xl font-bold text-blue-900 mb-6">Admin Dashboard</h2>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600">Total Trains</p>
+                                <p class="text-3xl font-bold" id="totalTrains">12</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-subway text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600">Total Stations</p>
+                                <p class="text-3xl font-bold" id="totalStations">8</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-map-marker-alt text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600">Today's Bookings</p>
+                                <p class="text-3xl font-bold" id="todayBookings">24</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-ticket-alt text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Chart -->
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Recent Bookings</h3>
+                    <canvas id="bookingsChart" height="300"></canvas>
+                </div>
+
+                <!-- Recent Bookings -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-4">Recent Bookings</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">PNR</th>
+                                    <th class="py-3 px-4 text-left">Train</th>
+                                    <th class="py-3 px-4 text-left">Date</th>
+                                    <th class="py-3 px-4 text-left">Passengers</th>
+                                    <th class="py-3 px-4 text-left">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBookingsTable" class="divide-y divide-gray-200">
+                                <!-- Recent bookings will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Trains Section -->
+            <div id="trainsSection" class="admin-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-900">Manage Trains</h2>
+                    <button onclick="showTrainForm()" class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-300">
+                        <i class="fas fa-plus mr-2"></i> Add Train
+                    </button>
+                </div>
+
+                <!-- Train Form (hidden by default) -->
+                <div id="trainForm" class="bg-white p-6 rounded-lg shadow mb-6 hidden">
+                    <h3 class="text-xl font-semibold mb-4" id="trainFormTitle">Add New Train</h3>
+                    <form id="trainDataForm" class="space-y-4">
+                        <input type="hidden" id="trainId">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Train Number</label>
+                                <input type="text" id="trainCode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Train Name</label>
+                                <input type="text" id="trainName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">From Station</label>
+                                <select id="startStation" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Select Station</option>
+                                    <option value="DEL">Delhi (DEL)</option>
+                                    <option value="MUM">Mumbai (MUM)</option>
+                                    <option value="CHE">Chennai (CHE)</option>
+                                    <option value="BAN">Bangalore (BAN)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">To Station</label>
+                                <select id="endStation" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Select Station</option>
+                                    <option value="DEL">Delhi (DEL)</option>
+                                    <option value="MUM">Mumbai (MUM)</option>
+                                    <option value="CHE">Chennai (CHE)</option>
+                                    <option value="BAN">Bangalore (BAN)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Departure Time</label>
+                                <input type="time" id="startTime" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Arrival Time</label>
+                                <input type="time" id="endTime" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Distance (km)</label>
+                            <input type="number" id="trainDistance" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="flex justify-end space-x-4 pt-4">
+                            <button type="button" onclick="hideTrainForm()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-300">
+                                Cancel
+                            </button>
+                            <button type="submit" class="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition duration-300">
+                                Save Train
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Trains List -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-3 px-4 text-left">Train No.</th>
+                                <th class="py-3 px-4 text-left">Train Name</th>
+                                <th class="py-3 px-4 text-left">Route</th>
+                                <th class="py-3 px-4 text-left">Timing</th>
+                                <th class="py-3 px-4 text-left">Distance</th>
+                                <th class="py-3 px-4 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trainsTable" class="divide-y divide-gray-200">
+                            <!-- Train data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Manage Stations Section -->
+            <div id="stationsSection" class="admin-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-900">Manage Stations</h2>
+                    <button onclick="showStationForm()" class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-300">
+                        <i class="fas fa-plus mr-2"></i> Add Station
+                    </button>
+                </div>
+
+                <!-- Station Form (hidden by default) -->
+                <div id="stationForm" class="bg-white p-6 rounded-lg shadow mb-6 hidden">
+                    <h3 class="text-xl font-semibold mb-4" id="stationFormTitle">Add New Station</h3>
+                    <form id="stationDataForm" class="space-y-4">
+                        <input type="hidden" id="stationId">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Station Code</label>
+                                <input type="text" id="stationCode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required maxlength="3">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Station Name</label>
+                                <input type="text" id="stationName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Zone</label>
+                            <select id="stationZone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">Select Zone</option>
+                                <option value="NR">Northern Railway (NR)</option>
+                                <option value="WR">Western Railway (WR)</option>
+                                <option value="SR">Southern Railway (SR)</option>
+                                <option value="ER">Eastern Railway (ER)</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end space-x-4 pt-4">
+                            <button type="button" onclick="hideStationForm()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-300">
+                                Cancel
+                            </button>
+                            <button type="submit" class="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition duration-300">
+                                Save Station
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Stations List -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-3 px-4 text-left">Station Code</th>
+                                <th class="py-3 px-4 text-left">Station Name</th>
+                                <th class="py-3 px-4 text-left">Zone</th>
+                                <th class="py-3 px-4 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stationsTable" class="divide-y divide-gray-200">
+                            <!-- Station data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- View Bookings Section -->
+            <div id="bookingsSection" class="admin-section hidden">
+                <h2 class="text-2xl font-bold text-blue-900 mb-6">View Bookings</h2>
+                
+                <!-- Filters -->
+                <div class="bg-white p-4 rounded-lg shadow mb-6">
+                    <form id="bookingFilters" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">From Date</label>
+                            <input type="date" id="fromDate" class="w-full p-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">To Date</label>
+                            <input type="date" id="toDate" class="w-full p-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Train</label>
+                            <select id="filterTrain" class="w-full p-2 border border-gray-300 rounded-lg">
+                                <option value="">All Trains</option>
+                                <option value="12345">12345 - RAJDHANI EXPRESS</option>
+                                <option value="12346">12346 - SHATABDI EXPRESS</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-300 h-[42px]">
+                                <i class="fas fa-filter mr-2"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bookings List -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-3 px-4 text-left">PNR</th>
+                                <th class="py-3 px-4 text-left">Train</th>
+                                <th class="py-3 px-4 text-left">Date</th>
+                                <th class="py-3 px-4 text-left">Passengers</th>
+                                <th class="py-3 px-4 text-left">Amount</th>
+                                <th class="py-3 px-4 text-left">Status</th>
+                                <th class="py-3 px-4 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTable" class="divide-y divide-gray-200">
+                            <!-- Booking data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show/hide sections
+        function showSection(sectionId) {
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(`${sectionId}Section`).classList.remove('hidden');
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show dashboard by default
+            showSection('dashboard');
+            
+            // Load mock data
+            loadDashboardData();
+            loadTrainsData();
+            loadStationsData();
+            loadBookingsData();
+            
+            // Initialize chart
+            initializeBookingsChart();
+        });
+
+        // Train management functions
+        function showTrainForm(train = null) {
+            const form = document.getElementById('trainForm');
+            const formTitle = document.getElementById('trainFormTitle');
+            
+            if (train) {
+                formTitle.textContent = 'Edit Train';
+                document.getElementById('trainId').value = train.train_code;
+                document.getElementById('trainCode').value = train.train_code;
+                document.getElementById('trainName').value = train.train_name;
+                document.getElementById('startStation').value = train.start_station_code;
+                document.getElementById('endStation').value = train.end_station_code;
+                document.getElementById('startTime').value = train.start_time;
+                document.getElementById('endTime').value = train.end_time;
+                document.getElementById('trainDistance').value = train.distance;
+            } else {
+                formTitle.textContent = 'Add New Train';
+                document.getElementById('trainDataForm').reset();
+            }
+            
+            form.classList.remove('hidden');
+        }
+
+        function hideTrainForm() {
+            document.getElementById('trainForm').classList.add('hidden');
+        }
+
+        // Station management functions
+        function showStationForm(station = null) {
+            const form = document.getElementById('stationForm');
+            const formTitle = document.getElementById('stationFormTitle');
+            
+            if (station) {
+                formTitle.textContent = 'Edit Station';
+                document.getElementById('stationId').value = station.station_code;
+                document.getElementById('stationCode').value = station.station_code;
+                document.getElementById('stationName').value = station.station_name;
+                document.getElementById('stationZone').value = station.zone_code;
+            } else {
+                formTitle.textContent = 'Add New Station';
+                document.getElementById('stationDataForm').reset();
+            }
+            
+            form.classList.remove('hidden');
+        }
+
+        function hideStationForm() {
+            document.getElementById('stationForm').classList.add('hidden');
+        }
+
+        // Data loading functions
+        function loadDashboardData() {
+            // Mock data - would come from database in real implementation
+            document.getElementById('totalTrains').textContent = '12';
+            document.getElementById('totalStations').textContent = '8';
+            document.getElementById('todayBookings').textContent = '24';
+            
+            // Recent bookings
+            const recentBookings = [
+                { pnr: '1234567890', train: '12345 / RAJDHANI EXPRESS', date: '15 Oct 2023', passengers: 2, amount: '₹5360' },
+                { pnr: '9876543210', train: '12346 / SHATABDI EXPRESS', date: '16 Oct 2023', passengers: 1, amount: '₹2680' },
+                { pnr: '5678901234', train: '12345 / RAJDHANI EXPRESS', date: '17 Oct 2023', passengers: 3, amount: '₹8040' }
+            ];
+            
+            const table = document.getElementById('recentBookingsTable');
+            table.innerHTML = '';
+            
+            recentBookings.forEach(booking => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-4 px-4">${booking.pnr}</td>
+                    <td class="py-4 px-4">${booking.train}</td>
+                    <td class="py-4 px-4">${booking.date}</td>
+                    <td class="py-4 px-4">${booking.passengers}</td>
+                    <td class="py-4 px-4">${booking.amount}</td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function loadTrainsData() {
+            // Mock data - would come from Train table in real implementation
+            const trains = [
+                {
+                    train_code: '12345',
+                    train_name: 'RAJDHANI EXPRESS',
+                    start_station_code: 'DEL',
+                    end_station_code: 'MUM',
+                    start_time: '18:30',
+                    end_time: '08:30',
+                    distance: '1400'
+                },
+                {
+                    train_code: '12346',
+                    train_name: 'SHATABDI EXPRESS',
+                    start_station_code: 'DEL',
+                    end_station_code: 'MUM',
+                    start_time: '06:00',
+                    end_time: '20:00',
+                    distance: '1400'
+                }
+            ];
+            
+            const table = document.getElementById('trainsTable');
+            table.innerHTML = '';
+            
+            trains.forEach(train => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-4 px-4">${train.train_code}</td>
+                    <td class="py-4 px-4">${train.train_name}</td>
+                    <td class="py-4 px-4">${getStationName(train.start_station_code)} to ${getStationName(train.end_station_code)}</td>
+                    <td class="py-4 px-4">${train.start_time} - ${train.end_time}</td>
+                    <td class="py-4 px-4">${train.distance} km</td>
+                    <td class="py-4 px-4">
+                        <button onclick="showTrainForm(${JSON.stringify(train).replace(/"/g, '"')})" class="text-blue-600 hover:text-blue-800 mr-2">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteTrain('${train.train_code}')" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function loadStationsData() {
+            // Mock data - would come from Station table in real implementation
+            const stations = [
+                { station_code: 'DEL', station_name: 'Delhi', zone_code: 'NR' },
+                { station_code: 'MUM', station_name: 'Mumbai', zone_code: 'WR' },
+                { station_code: 'CHE', station_name: 'Chennai', zone_code: 'SR' },
+                { station_code: 'BAN', station_name: 'Bangalore', zone_code: 'SR' }
+            ];
+            
+            const table = document.getElementById('stationsTable');
+            table.innerHTML = '';
+            
+            stations.forEach(station => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-4 px-4">${station.station_code}</td>
+                    <td class="py-4 px-4">${station.station_name}</td>
+                    <td class="py-4 px-4">${getZoneName(station.zone_code)}</td>
+                    <td class="py-4 px-4">
+                        <button onclick="showStationForm(${JSON.stringify(station).replace(/"/g, '"')})" class="text-blue-600 hover:text-blue-800 mr-2">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteStation('${station.station_code}')" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function loadBookingsData() {
+            // Mock data - would come from Ticket_reservation and Pay_info tables in real implementation
+            const bookings = [
+                {
+                    pnr: '1234567890',
+                    train: '12345 / RAJDHANI EXPRESS',
+                    date: '15 Oct 2023',
+                    passengers: 2,
+                    amount: '₹5360',
+                    status: 'Confirmed'
+                },
+                {
+                    pnr: '9876543210',
+                    train: '12346 / SHATABDI EXPRESS',
+                    date: '16 Oct 2023',
+                    passengers: 1,
+                    amount: '₹2680',
+                    status: 'Confirmed'
+                }
+            ];
+            
+            const table = document.getElementById('bookingsTable');
+            table.innerHTML = '';
+            
+            bookings.forEach(booking => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-4 px-4">${booking.pnr}</td>
+                    <td class="py-4 px-4">${booking.train}</td>
+                    <td class="py-4 px-4">${booking.date}</td>
+                    <td class="py-4 px-4">${booking.passengers}</td>
+                    <td class="py-4 px-4">${booking.amount}</td>
+                    <td class="py-4 px-4">
+                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">${booking.status}</span>
+                    </td>
+                    <td class="py-4 px-4">
+                        <button onclick="viewBookingDetails('${booking.pnr}')" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function initializeBookingsChart() {
+            const ctx = document.getElementById('bookingsChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Bookings',
+                        data: [12, 19, 15, 20, 25, 30, 18],
+                        backgroundColor: 'rgba(29, 78, 216, 0.7)',
+                        borderColor: 'rgba(29, 78, 216, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper functions
+        function getStationName(stationCode) {
+            const stations = {
+                'DEL': 'Delhi',
+                'MUM': 'Mumbai',
+                'CHE': 'Chennai',
+                'BAN': 'Bangalore',
+                'GWL': 'Gwalior',
+                'BPL': 'Bhopal'
+            };
+            return stations[stationCode] || stationCode;
+        }
+
+        function getZoneName(zoneCode) {
+            const zones = {
+                'NR': 'Northern Railway',
+                'WR': 'Western Railway',
+                'SR': 'Southern Railway',
+                'ER': 'Eastern Railway'
+            };
+            return zones[zoneCode] || zoneCode;
+        }
+
+        // Form submission handlers
+        document.getElementById('trainDataForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real implementation, this would save to the Train table
+            alert('Train saved successfully!');
+            hideTrainForm();
+            loadTrainsData();
+        });
+
+        document.getElementById('stationDataForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real implementation, this would save to the Station table
+            alert('Station saved successfully!');
+            hideStationForm();
+            loadStationsData();
+        });
+
+        // Delete functions
+        function deleteTrain(trainCode) {
+            if (confirm(`Are you sure you want to delete train ${trainCode}?`)) {
+                // In a real implementation, this would delete from the Train table
+                alert('Train deleted successfully!');
+                loadTrainsData();
+            }
+        }
+
+        function deleteStation(stationCode) {
+            if (confirm(`Are you sure you want to delete station ${stationCode}?`)) {
+                // In a real implementation, this would delete from the Station table
+                alert('Station deleted successfully!');
+                loadStationsData();
+            }
+        }
+
+        // View booking details
+        function viewBookingDetails(pnr) {
+            // In a real implementation, this would show detailed booking info
+            alert(`Showing details for PNR: ${pnr}`);
+        }
+    </script>
+</body>
+</html>
