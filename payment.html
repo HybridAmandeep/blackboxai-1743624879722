@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | IRCTC Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-train text-2xl"></i>
+                <h1 class="text-2xl font-bold">IRCTC Clone</h1>
+            </div>
+            <div class="space-x-4">
+                <a href="index.html" class="hover:text-blue-200">Home</a>
+                <a href="login.html" class="hover:text-blue-200">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Payment Section -->
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Payment Form -->
+            <div class="md:w-2/3">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-blue-900 mb-6">Payment Details</h2>
+                    
+                    <form id="paymentForm" class="space-y-4">
+                        <!-- Card Details -->
+                        <div>
+                            <label class="block text-gray-700 mb-2">Card Number</label>
+                            <div class="relative">
+                                <i class="fas fa-credit-card absolute left-3 top-3 text-gray-400"></i>
+                                <input type="text" id="cardNumber" class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="1234 5678 9012 3456" maxlength="19">
+                            </div>
+                            <p id="cardNumberError" class="text-red-500 text-sm mt-1 hidden">Please enter a valid 16-digit card number</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Expiry Date</label>
+                                <input type="text" id="expiryDate" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="MM/YY" maxlength="5">
+                                <p id="expiryError" class="text-red-500 text-sm mt-1 hidden">Please enter a valid expiry date (MM/YY)</p>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">CVV</label>
+                                <div class="relative">
+                                    <i class="fas fa-lock absolute left-3 top-3 text-gray-400"></i>
+                                    <input type="text" id="cvv" class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="123" maxlength="3">
+                                </div>
+                                <p id="cvvError" class="text-red-500 text-sm mt-1 hidden">Please enter a valid 3-digit CVV</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">Cardholder Name</label>
+                            <input type="text" id="cardName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Name on card">
+                            <p id="cardNameError" class="text-red-500 text-sm mt-1 hidden">Please enter cardholder name</p>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition duration-300">
+                                Pay Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Secure Payment Badge -->
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <div class="flex justify-center items-center space-x-2">
+                        <i class="fas fa-lock text-green-500 text-2xl"></i>
+                        <span class="text-gray-700">Your payment is secure and encrypted</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Booking Summary -->
+            <div class="md:w-1/3">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">Booking Summary</h2>
+                    
+                    <div id="bookingSummary" class="space-y-4">
+                        <!-- Booking details will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Total Amount</span>
+                            <span id="paymentTotalAmount">₹0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get booking details from localStorage
+        const bookingDetails = JSON.parse(localStorage.getItem('bookingDetails'));
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Display booking summary
+            document.getElementById('bookingSummary').innerHTML = `
+                <div>
+                    <p class="text-gray-600">Train</p>
+                    <p class="font-semibold">${bookingDetails.train.train_name} (${bookingDetails.train.train_code})</p>
+                </div>
+                <div>
+                    <p class="text-gray-600">Class</p>
+                    <p class="font-semibold">${bookingDetails.class.class_name}</p>
+                </div>
+                <div>
+                    <p class="text-gray-600">Passengers</p>
+                    ${bookingDetails.passengers.map(passenger => `
+                        <p class="font-semibold">${passenger.name} (${passenger.age} ${passenger.gender.charAt(0)}) - Seat ${passenger.seat}</p>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('paymentTotalAmount').textContent = bookingDetails.totalAmount;
+            
+            // Format card number input
+            document.getElementById('cardNumber').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s+/g, '');
+                if (value.length > 0) {
+                    value = value.match(new RegExp('.{1,4}', 'g')).join(' ');
+                }
+                e.target.value = value;
+            });
+            
+            // Format expiry date input
+            document.getElementById('expiryDate').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D+/g, '');
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+        });
+        
+        // Payment form submission
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+            const cardName = document.getElementById('cardName').value;
+            
+            // Reset errors
+            document.getElementById('cardNumberError').classList.add('hidden');
+            document.getElementById('expiryError').classList.add('hidden');
+            document.getElementById('cvvError').classList.add('hidden');
+            document.getElementById('cardNameError').classList.add('hidden');
+            
+            // Validate inputs
+            let isValid = true;
+            
+            if (!cardNumber || cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+                document.getElementById('cardNumberError').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (!expiryDate || !/^\d{2}\/\d{2}$/.test(expiryDate)) {
+                document.getElementById('expiryError').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (!cvv || cvv.length !== 3 || !/^\d+$/.test(cvv)) {
+                document.getElementById('cvvError').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (!cardName) {
+                document.getElementById('cardNameError').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Create payment record (would insert into Pay_info table in real implementation)
+                const paymentRecord = {
+                    payment_id: Math.floor(Math.random() * 1000000),
+                    inst_amt: parseFloat(bookingDetails.totalAmount.replace('₹', '')),
+                    inst_type: 'Credit Card',
+                    pay_mode: 'Online',
+                    pay_date: new Date().toISOString().split('T')[0],
+                    pnr_no: Math.floor(Math.random() * 10000000),
+                    srl_no: 1,
+                    amount: parseFloat(bookingDetails.totalAmount.replace('₹', ''))
+                };
+                
+                // Store payment record in localStorage (mock database)
+                localStorage.setItem('paymentRecord', JSON.stringify(paymentRecord));
+                
+                // Create ticket reservation (would insert into Ticket_reservation table)
+                const ticketReservation = {
+                    pnr_no: paymentRecord.pnr_no,
+                    train_code: bookingDetails.train.train_code,
+                    from_station: bookingDetails.train.start_station_code,
+                    to_station: bookingDetails.train.end_station_code,
+                    from_km: 0, // Would calculate based on stations in real implementation
+                    to_km: bookingDetails.train.distance,
+                    from_date: localStorage.getItem('journeyDate'),
+                    to_date: localStorage.getItem('journeyDate')
+                };
+                
+                // Store ticket reservation in localStorage
+                localStorage.setItem('ticketReservation', JSON.stringify(ticketReservation));
+                
+                // Create PAX records (would insert into PAX_info table)
+                const paxRecords = bookingDetails.passengers.map((passenger, index) => ({
+                    passenger_id: Math.floor(Math.random() * 1000000),
+                    srl_no: index + 1,
+                    pax_name: passenger.name,
+                    pax_age: passenger.age,
+                    pax_sex: passenger.gender,
+                    seat_no: passenger.seat,
+                    fare: bookingDetails.class.fare,
+                    pnr_no: paymentRecord.pnr_no
+                }));
+                
+                // Store PAX records in localStorage
+                localStorage.setItem('paxRecords', JSON.stringify(paxRecords));
+                
+                // Redirect to confirmation page
+                window.location.href = 'booking_confirmation.html';
+            }
+        });
+    </script>
+</body>
+</html>
