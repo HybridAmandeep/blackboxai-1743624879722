@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNR Status | IRCTC Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-train text-2xl"></i>
+                <h1 class="text-2xl font-bold">IRCTC Clone</h1>
+            </div>
+            <div class="space-x-4">
+                <a href="index.html" class="hover:text-blue-200">Home</a>
+                <a href="login.html" class="hover:text-blue-200">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PNR Status Section -->
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-blue-900 mb-6">Check PNR Status</h2>
+            
+            <!-- PNR Input Form -->
+            <div class="bg-blue-50 p-6 rounded-lg mb-8">
+                <form id="pnrForm" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-grow">
+                        <label class="block text-gray-700 mb-2">Enter 10-digit PNR Number</label>
+                        <div class="relative">
+                            <i class="fas fa-ticket-alt absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" id="pnrInput" class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="e.g. 1234567890" maxlength="10">
+                        </div>
+                        <p id="pnrError" class="text-red-500 text-sm mt-1 hidden">Please enter a valid 10-digit PNR number</p>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition duration-300 h-[42px]">
+                            <i class="fas fa-search mr-2"></i> Check Status
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Results Section (initially hidden) -->
+            <div id="resultsSection" class="hidden">
+                <!-- Journey Details -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Journey Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <p class="text-gray-600">Train No. & Name</p>
+                            <p class="font-semibold" id="pnrTrainDetails">12345 / RAJDHANI EXPRESS</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Date of Journey</p>
+                            <p class="font-semibold" id="pnrJourneyDate">15 Oct 2023</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Class</p>
+                            <p class="font-semibold" id="pnrJourneyClass">2A</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600">From</p>
+                            <p class="font-semibold" id="pnrFromStation">Delhi (DEL)</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">To</p>
+                            <p class="font-semibold" id="pnrToStation">Mumbai (MUM)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Passenger Details -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Passenger Status</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">S.No.</th>
+                                    <th class="py-3 px-4 text-left">Name</th>
+                                    <th class="py-3 px-4 text-left">Age</th>
+                                    <th class="py-3 px-4 text-left">Gender</th>
+                                    <th class="py-3 px-4 text-left">Seat No.</th>
+                                    <th class="py-3 px-4 text-left">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pnrPassengerTable" class="divide-y divide-gray-200">
+                                <!-- Passenger details will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Current Status -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Current Status</h3>
+                    <div class="flex items-center">
+                        <div class="mr-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-semibold" id="pnrCurrentStatus">Your ticket is confirmed</p>
+                            <p class="text-gray-600" id="pnrStatusDetails">All passengers have confirmed berths</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission handler
+        document.getElementById('pnrForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const pnrNumber = document.getElementById('pnrInput').value.trim();
+            document.getElementById('pnrError').classList.add('hidden');
+            
+            // Validate PNR number
+            if (!pnrNumber || pnrNumber.length !== 10 || !/^\d+$/.test(pnrNumber)) {
+                document.getElementById('pnrError').classList.remove('hidden');
+                return;
+            }
+            
+            // Check if this PNR exists in our mock data
+            const paymentRecord = JSON.parse(localStorage.getItem('paymentRecord'));
+            if (paymentRecord && paymentRecord.pnr_no.toString() === pnrNumber) {
+                // Get all related records
+                const bookingDetails = JSON.parse(localStorage.getItem('bookingDetails'));
+                const ticketReservation = JSON.parse(localStorage.getItem('ticketReservation'));
+                const paxRecords = JSON.parse(localStorage.getItem('paxRecords'));
+                
+                // Display journey details
+                document.getElementById('pnrTrainDetails').textContent = 
+                    `${bookingDetails.train.train_code} / ${bookingDetails.train.train_name}`;
+                document.getElementById('pnrJourneyDate').textContent = 
+                    new Date(ticketReservation.from_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                document.getElementById('pnrJourneyClass').textContent = bookingDetails.class.class_name;
+                document.getElementById('pnrFromStation').textContent = 
+                    `${getStationName(ticketReservation.from_station)} (${ticketReservation.from_station})`;
+                document.getElementById('pnrToStation').textContent = 
+                    `${getStationName(ticketReservation.to_station)} (${ticketReservation.to_station)}`;
+                
+                // Display passenger details
+                const passengerTable = document.getElementById('pnrPassengerTable');
+                passengerTable.innerHTML = ''; // Clear previous results
+                
+                paxRecords.forEach((passenger, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="py-4 px-4">${index + 1}</td>
+                        <td class="py-4 px-4">${passenger.pax_name}</td>
+                        <td class="py-4 px-4">${passenger.pax_age}</td>
+                        <td class="py-4 px-4">${passenger.pax_sex}</td>
+                        <td class="py-4 px-4">${passenger.seat_no}</td>
+                        <td class="py-4 px-4">
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Confirmed</span>
+                        </td>
+                    `;
+                    passengerTable.appendChild(row);
+                });
+                
+                // Show results section
+                document.getElementById('resultsSection').classList.remove('hidden');
+            } else {
+                alert('PNR not found. Please check the number and try again.');
+            }
+        });
+        
+        // Helper function to get station name
+        function getStationName(stationCode) {
+            const stations = {
+                'DEL': 'Delhi',
+                'MUM': 'Mumbai',
+                'CHE': 'Chennai',
+                'BAN': 'Bangalore',
+                'GWL': 'Gwalior',
+                'BPL': 'Bhopal'
+            };
+            return stations[stationCode] || stationCode;
+        }
+    </script>
+</body>
+</html>
